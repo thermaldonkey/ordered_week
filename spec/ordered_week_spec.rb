@@ -72,6 +72,16 @@ describe OrderedWeek do
       with_arg.start_date.should eq without_arg.start_date
       with_arg.end_date.should eq without_arg.end_date
     end
+
+    it "should accept an optional start day to override the default" do
+      expect(OrderedWeek.new(Date.today, :thursday).start_date)
+        .to be_thursday
+    end
+
+    it "should use the default start day if the given day is invalid" do
+      expect(OrderedWeek.new(Date.today, :bad).start_date)
+        .to eq(OrderedWeek.new.start_date)
+    end
   end
 
   describe "An instance of", OrderedWeek do

@@ -17,7 +17,8 @@ class OrderedWeek
     @@start_day = day
   end
 
-  def initialize includes_date=nil
+  def initialize includes_date = nil, start_day = nil
+    @start_day = default_start_day(start_day)
     @days = build_days(default_date(includes_date))
   end
 
@@ -49,6 +50,10 @@ class OrderedWeek
 
   private
 
+    def default_start_day(day)
+      WEEK_DAYS.include?(day) ? day : @@start_day
+    end
+
     def default_date(date)
       date.respond_to?(:to_date) ? date.to_date : Date.today
     end
@@ -61,10 +66,10 @@ class OrderedWeek
     end
 
     def date_is_start_of_week date
-      date.send( (@@start_day.to_s + ??).to_sym )
+      date.send("#{@start_day}?")
     end
 
     def start_day_index
-      WEEK_DAYS.index(@@start_day)
+      WEEK_DAYS.index(@start_day)
     end
 end
