@@ -24,6 +24,14 @@ Note: The following examples assume the current date to be Sunday, 2014-02-16.
 
     OrderedWeek.new
     #=> [2014-02-10, 2014-02-11, ... ]
+    OrderedWeek.new(Date.today - 7)
+    #=> [2014-02-03, 2014-02-04, ... ]
+
+The constructor accepts any object that responds to `.to_date` (such as Times),
+and returns a week containing that date.
+
+    OrderedWeek.new(1.week.ago)
+    #=> [2014-02-03, 2014-02-04, ... ]
 
 These collections have a concept of where they start and end.
 

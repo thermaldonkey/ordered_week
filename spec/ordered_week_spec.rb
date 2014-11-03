@@ -56,6 +56,16 @@ describe OrderedWeek do
       expect{ OrderedWeek.new(Date.today) }.to_not raise_error
     end
 
+    it "should accept any date-like object" do
+      expect { OrderedWeek.new(Time.now) }.to_not raise_error
+    end
+
+    it "should return the week containing any date-like object" do
+      week_of_seconds = 60 * 60 * 24 * 7
+      expect(OrderedWeek.new(Time.now - week_of_seconds).start_date)
+        .to eq(OrderedWeek.new(Date.today - 7).start_date)
+    end
+
     it "should default to the current week, if not given an arg" do
       with_arg = OrderedWeek.new(Date.today)
       without_arg = OrderedWeek.new

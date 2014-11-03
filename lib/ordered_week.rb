@@ -14,12 +14,11 @@ class OrderedWeek
 
   def self.start_day= day
     return false unless WEEK_DAYS.include?(day)
-    @@start_day = day 
+    @@start_day = day
   end
 
   def initialize includes_date=nil
-    includes_date = includes_date.is_a?(Date) ? includes_date : Date.today
-    @days = build_days(includes_date)
+    @days = build_days(default_date(includes_date))
   end
 
   def inspect
@@ -49,6 +48,10 @@ class OrderedWeek
   end
 
   private
+
+    def default_date(date)
+      date.respond_to?(:to_date) ? date.to_date : Date.today
+    end
 
     def build_days(date)
       while not date_is_start_of_week(date)
