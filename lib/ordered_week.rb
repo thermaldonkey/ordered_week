@@ -3,18 +3,20 @@ class OrderedWeek
 
   VERSION = '0.0.1'
   WEEK_DAYS = [:sunday, :monday, :tuesday, :wednesday, :thursday, :friday, :saturday]
+  DEFAULT_START_DAY = :monday
 
-  @@start_day ||= :monday
+  @start_day = DEFAULT_START_DAY
 
   private_constant :WEEK_DAYS
+  private_constant :DEFAULT_START_DAY
 
   def self.start_day
-    @@start_day
+    @start_day
   end
 
   def self.start_day= day
     return false unless WEEK_DAYS.include?(day)
-    @@start_day = day
+    @start_day = day
   end
 
   def initialize includes_date=nil
@@ -49,6 +51,10 @@ class OrderedWeek
 
   private
 
+    def self.inherited(base)
+      base.start_day = DEFAULT_START_DAY
+    end
+
     def default_date(date)
       date.respond_to?(:to_date) ? date.to_date : Date.today
     end
@@ -61,10 +67,10 @@ class OrderedWeek
     end
 
     def date_is_start_of_week date
-      date.send( (@@start_day.to_s + ??).to_sym )
+      date.send( (self.class.start_day.to_s + ??).to_sym )
     end
 
     def start_day_index
-      WEEK_DAYS.index(@@start_day)
+      WEEK_DAYS.index(self.class.start_day)
     end
 end
