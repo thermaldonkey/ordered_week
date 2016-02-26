@@ -1,3 +1,5 @@
+require 'date'
+
 class OrderedWeek
   include Enumerable
 
@@ -6,6 +8,8 @@ class OrderedWeek
   DEFAULT_START_DAY = :monday
 
   @start_day = DEFAULT_START_DAY
+
+  attr_reader :start_day
 
   private_constant :WEEK_DAYS
   private_constant :DEFAULT_START_DAY
@@ -19,7 +23,8 @@ class OrderedWeek
     @start_day = day
   end
 
-  def initialize includes_date=nil
+  def initialize includes_date = nil, start_day = nil
+    @start_day = default_start_day(start_day)
     @days = build_days(default_date(includes_date))
   end
 
@@ -55,6 +60,10 @@ class OrderedWeek
       base.start_day = DEFAULT_START_DAY
     end
 
+    def default_start_day(day)
+      WEEK_DAYS.include?(day) ? day : self.class.start_day
+    end
+
     def default_date(date)
       date.respond_to?(:to_date) ? date.to_date : Date.today
     end
@@ -67,10 +76,10 @@ class OrderedWeek
     end
 
     def date_is_start_of_week date
-      date.send( (self.class.start_day.to_s + ??).to_sym )
+      date.send("#{start_day}?")
     end
 
     def start_day_index
-      WEEK_DAYS.index(self.class.start_day)
+      WEEK_DAYS.index(start_day)
     end
 end
