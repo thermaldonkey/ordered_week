@@ -87,6 +87,17 @@ describe OrderedWeek do
   describe "An instance of", OrderedWeek do
     subject { OrderedWeek.new }
 
+    describe "#start_day" do
+      it "should default to the classes start_day" do
+        expect(OrderedWeek.new.start_day).to eq(OrderedWeek.start_day)
+      end
+
+      it "should return the given start_day (if any)" do
+        expect(OrderedWeek.new(Date.today, :wednesday).start_day)
+          .to eq(:wednesday)
+      end
+    end
+
     describe "#start_date" do
       subject { OrderedWeek.new.start_date }
 

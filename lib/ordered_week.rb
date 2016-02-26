@@ -6,6 +6,8 @@ class OrderedWeek
 
   @@start_day ||= :monday
 
+  attr_reader :start_day
+
   private_constant :WEEK_DAYS
 
   def self.start_day
@@ -66,10 +68,10 @@ class OrderedWeek
     end
 
     def date_is_start_of_week date
-      date.send("#{@start_day}?")
+      date.send("#{start_day}?")
     end
 
     def start_day_index
-      WEEK_DAYS.index(@start_day)
+      WEEK_DAYS.index(start_day)
     end
 end
