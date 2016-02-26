@@ -59,6 +59,15 @@ Don't worry though! If you accidentally pass an argument that isn't the symbol o
     OrderedWeek.start_day
     #=> :monday
 
+In addition to the class-level configuration, `OrderedWeek.new` accepts an optional argument for the start day.
+
+    OrderedWeek.start_day
+    #=> :monday
+    OrderedWeek.new(Date.today)
+    #=> [2014-02-10, 2014-02-11, ... ]
+    OrderedWeek.new(Date.today, :sunday)
+    #=> [2014-02-16, 2014-02-17, ... ]
+
 These objects respond to the following methods
 
     OrderedWeek.new.monday
