@@ -1,6 +1,9 @@
 require 'spec_helper'
 
 describe OrderedWeek do
+  let(:default_start_day) { :monday }
+  let(:fancy_week) { Class.new(OrderedWeek) }
+
   describe "::start_day" do
     subject { OrderedWeek.start_day }
 
@@ -11,9 +14,15 @@ describe OrderedWeek do
     it "should return a Symbol" do
       subject.should be_a Symbol
     end
+
+    it 'should be set by default for subclasses' do
+      expect(fancy_week.start_day).to eq(default_start_day)
+    end
   end
 
   describe "::start_day=" do
+    after(:each) { OrderedWeek.start_day = default_start_day }
+
     subject { OrderedWeek.start_day = :sunday }
 
     it "should respond" do
@@ -30,6 +39,16 @@ describe OrderedWeek do
         subject
         OrderedWeek.start_day.should eq day
       end
+
+      it 'should not pollute super-classes' do
+        expect { fancy_week.start_day = day }
+          .not_to change { OrderedWeek.start_day }
+      end
+
+      it 'should not pollute sub-classes' do
+        expect { subject }
+          .not_to change { fancy_week.start_day }
+      end
     end
 
     context "given an invalid day of week" do
@@ -41,6 +60,16 @@ describe OrderedWeek do
         OrderedWeek.start_day.should_not eq day
         subject
         OrderedWeek.start_day.should_not eq day
+      end
+
+      it 'should not pollute super-classes' do
+        expect { fancy_week.start_day = day }
+          .not_to change { OrderedWeek.start_day }
+      end
+
+      it 'should not pollute sub-classes' do
+        expect { subject }
+          .not_to change { fancy_week.start_day }
       end
     end
   end
