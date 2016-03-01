@@ -1,18 +1,14 @@
 require 'spec_helper'
 
-describe OrderedWeek do
+RSpec.describe OrderedWeek do
   let(:default_start_day) { :monday }
   let(:fancy_week) { Class.new(OrderedWeek) }
 
-  describe "::start_day" do
+  describe '::start_day' do
     subject { OrderedWeek.start_day }
 
-    it "should respond" do
-      expect{ subject }.to_not raise_error
-    end
-
-    it "should return a Symbol" do
-      subject.should be_a Symbol
+    it 'should default to :monday' do
+      is_expected.to eq(:monday)
     end
 
     it 'should be set by default for subclasses' do
@@ -20,24 +16,21 @@ describe OrderedWeek do
     end
   end
 
-  describe "::start_day=" do
+  describe '::start_day=' do
     after(:each) { OrderedWeek.start_day = default_start_day }
 
-    subject { OrderedWeek.start_day = :sunday }
+    subject { OrderedWeek.start_day = day }
 
-    it "should respond" do
-      expect{ subject }.to_not raise_error
-    end
-
-    context "given a valid day of week" do
+    context 'given a valid day of week' do
       let(:day) { :wednesday }
 
-      subject { OrderedWeek.start_day = day }
+      it 'should update the established start of week' do
+        expect { subject }.to change { OrderedWeek.start_day }
+          .from(default_start_day).to(day)
 
-      it "should update the established start of week" do
-        OrderedWeek.start_day.should_not eq day
-        subject
-        OrderedWeek.start_day.should eq day
+        expect { fancy_week.start_day = day }
+          .to change { fancy_week.start_day }
+          .from(default_start_day).to(day)
       end
 
       it 'should not pollute super-classes' do
@@ -46,20 +39,15 @@ describe OrderedWeek do
       end
 
       it 'should not pollute sub-classes' do
-        expect { subject }
-          .not_to change { fancy_week.start_day }
+        expect { subject }.not_to change { fancy_week.start_day }
       end
     end
 
-    context "given an invalid day of week" do
+    context 'given an invalid day of week' do
       let(:day) { :bad }
 
-      subject { OrderedWeek.start_day = day }
-
-      it "should not update the established start of week" do
-        OrderedWeek.start_day.should_not eq day
-        subject
-        OrderedWeek.start_day.should_not eq day
+      it 'should not update the established start of week' do
+        expect { subject }.not_to change { OrderedWeek.start_day }
       end
 
       it 'should not pollute super-classes' do
@@ -68,201 +56,102 @@ describe OrderedWeek do
       end
 
       it 'should not pollute sub-classes' do
-        expect { subject }
-          .not_to change { fancy_week.start_day }
+        expect { subject }.not_to change { fancy_week.start_day }
       end
     end
   end
 
-  describe "::new" do
-    subject { OrderedWeek.new }
-
-    it "should respond" do
-      expect{ subject }.to_not raise_error
+  describe '::new' do
+    it 'should return the week containing the given date' do
+      date = Date.today - 10
+      week_start = (date - 6..date).find(&:monday?)
+      expect(OrderedWeek.new(date).to_a)
+        .to eq((week_start...week_start + 7).to_a)
     end
 
-    it "should accept a Date" do
-      expect{ OrderedWeek.new(Date.today) }.to_not raise_error
-    end
-
-    it "should accept any date-like object" do
-      expect { OrderedWeek.new(Time.now) }.to_not raise_error
-    end
-
-    it "should return the week containing any date-like object" do
+    it 'should return the week containing any date-like object' do
       week_of_seconds = 60 * 60 * 24 * 7
-      expect(OrderedWeek.new(Time.now - week_of_seconds).start_date)
-        .to eq(OrderedWeek.new(Date.today - 7).start_date)
+      expect(OrderedWeek.new(Time.now - week_of_seconds).to_a)
+        .to eq(OrderedWeek.new(Date.today - 7).to_a)
     end
 
-    it "should default to the current week, if not given an arg" do
-      with_arg = OrderedWeek.new(Date.today)
-      without_arg = OrderedWeek.new
-      with_arg.start_date.should eq without_arg.start_date
-      with_arg.end_date.should eq without_arg.end_date
+    it 'should default to the current week, if not given an arg' do
+      week_start = (Date.today - 6..Date.today).find(&:monday?)
+      expect(OrderedWeek.new.to_a).to eq((week_start...week_start + 7).to_a)
     end
 
-    it "should accept an optional start day to override the default" do
+    it 'should accept an optional start day to override the default' do
       expect(OrderedWeek.new(Date.today, :thursday).start_date)
         .to be_thursday
     end
 
-    it "should use the default start day if the given day is invalid" do
+    it 'should use the default start day if the given day is invalid' do
       expect(OrderedWeek.new(Date.today, :bad).start_date)
         .to eq(OrderedWeek.new.start_date)
     end
   end
 
-  describe "An instance of", OrderedWeek do
-    subject { OrderedWeek.new }
+  describe 'An instance of', OrderedWeek do
+    let(:week) { OrderedWeek.new }
 
-    describe "#start_day" do
-      it "should default to the classes start_day" do
+    describe '#start_day' do
+      it 'should default to the classes start_day' do
         expect(OrderedWeek.new.start_day).to eq(OrderedWeek.start_day)
       end
 
-      it "should return the given start_day (if any)" do
+      it 'should return the given start_day (if any)' do
         expect(OrderedWeek.new(Date.today, :wednesday).start_day)
           .to eq(:wednesday)
       end
     end
 
-    describe "#start_date" do
-      subject { OrderedWeek.new.start_date }
+    describe '#start_date' do
+      subject { week.start_date }
 
-      it "should respond" do
-        expect{ subject }.to_not raise_error
-      end
-
-      it "should return a Date" do
-        subject.should be_a Date
+      it 'should return the first date in the week' do
+        is_expected.to eq(week.to_a.first)
       end
     end
 
-    describe "#end_date" do
-      subject { OrderedWeek.new.end_date }
+    describe '#end_date' do
+      subject { week.end_date }
 
-      it "should respond" do
-        expect{ subject }.to_not raise_error
-      end
-
-      it "should return a Date" do
-        subject.should be_a Date
+      it 'should return the last date in the week' do
+        is_expected.to eq(week.to_a.last)
       end
     end
 
-    describe "#sunday" do
-      subject { OrderedWeek.new.sunday }
+    %i(sunday monday tuesday wednesday thursday friday saturday).each do |day|
+      describe "##{day}" do
+        subject { week.public_send(day) }
 
-      it "should respond" do
-        expect{ subject }.to_not raise_error
-      end
-
-      it "should return a Date" do
-        subject.should be_a Date
+        it "should return the #{day.capitalize} of the given week" do
+          is_expected.to eq(week.find(&:"#{day}?"))
+        end
       end
     end
 
-    describe "#monday" do
-      subject { OrderedWeek.new.monday }
+    describe '#inspect' do
+      subject { week.inspect }
 
-      it "should respond" do
-        expect{ subject }.to_not raise_error
-      end
-
-      it "should return a Date" do
-        subject.should be_a Date
+      it 'should inspect the array of dates' do
+        is_expected.to eq(week.to_a.map(&:to_s).inspect.gsub('"', ''))
       end
     end
 
-    describe "#tuesday" do
-      subject { OrderedWeek.new.tuesday }
+    describe '#to_a' do
+      subject { week.to_a }
 
-      it "should respond" do
-        expect{ subject }.to_not raise_error
-      end
-
-      it "should return a Date" do
-        subject.should be_a Date
+      it 'should return the array of dates in the week' do
+        is_expected.to eq((week.start_date..week.end_date).to_a)
       end
     end
 
-    describe "#wednesday" do
-      subject { OrderedWeek.new.wednesday }
-
-      it "should respond" do
-        expect{ subject }.to_not raise_error
-      end
-
-      it "should return a Date" do
-        subject.should be_a Date
+    describe '#each' do
+      it 'should make for enumerable operations' do
+        enum_return = week.map { |obj| obj.strftime("%F") }
+        expect(enum_return).to eq(week.to_a.map(&:to_s))
       end
     end
-
-    describe "#thursday" do
-      subject { OrderedWeek.new.thursday }
-
-      it "should respond" do
-        expect{ subject }.to_not raise_error
-      end
-
-      it "should return a Date" do
-        subject.should be_a Date
-      end
-    end
-
-    describe "#friday" do
-      subject { OrderedWeek.new.friday }
-
-      it "should respond" do
-        expect{ subject }.to_not raise_error
-      end
-
-      it "should return a Date" do
-        subject.should be_a Date
-      end
-    end
-
-    describe "#saturday" do
-      subject { OrderedWeek.new.saturday }
-
-      it "should respond" do
-        expect{ subject }.to_not raise_error
-      end
-
-      it "should return a Date" do
-        subject.should be_a Date
-      end
-    end
-
-    describe "#inspect" do
-      subject { OrderedWeek.new.inspect }
-
-      it "should respond" do
-        expect{ subject }.to_not raise_error
-      end
-    end
-
-    describe "#to_a" do
-      subject { OrderedWeek.new.to_a }
-
-      it "should respond" do
-        expect{ subject }.to_not raise_error
-      end
-    end
-
-    describe "#each" do
-      subject { OrderedWeek.new.each {|obj| obj} }
-
-      it "should respond" do
-        expect{ subject }.to_not raise_error
-      end
-
-      it "should make for enumerable operations" do
-        enum_return = OrderedWeek.new.map {|obj| obj.strftime("%F")}
-        enum_return.each {|e_obj| e_obj.should be_a String}
-      end
-    end
-
   end
 end
