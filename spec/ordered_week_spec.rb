@@ -148,6 +148,11 @@ RSpec.describe OrderedWeek do
     end
 
     describe '#each' do
+      it 'should delegate to @days' do
+        expect(week.each).to be_an(Enumerator)
+        expect(week.each.inspect).to eq(week.to_a.each.inspect)
+      end
+
       it 'should make for enumerable operations' do
         enum_return = week.map { |obj| obj.strftime("%F") }
         expect(enum_return).to eq(week.to_a.map(&:to_s))

@@ -36,8 +36,8 @@ class OrderedWeek
     @days
   end
 
-  def each &block
-    @days.each {|d| yield d}
+  def each(&block)
+    @days.each(&block)
   end
 
   def start_date
