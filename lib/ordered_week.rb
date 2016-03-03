@@ -1,17 +1,18 @@
 require 'date'
 
+require 'ordered_week/week_day'
+
 class OrderedWeek
   include Enumerable
 
   VERSION = '0.0.1'
-  WEEK_DAYS = [:sunday, :monday, :tuesday, :wednesday, :thursday, :friday, :saturday]
   DEFAULT_START_DAY = :monday
 
   @start_day = DEFAULT_START_DAY
 
   attr_reader :start_day
 
-  private_constant :WEEK_DAYS
+  private_constant :WeekDay
   private_constant :DEFAULT_START_DAY
 
   def self.start_day
@@ -19,13 +20,12 @@ class OrderedWeek
   end
 
   def self.start_day= day
-    return false unless WEEK_DAYS.include?(day)
-    @start_day = day
+    @start_day = WeekDay.validate(day)
   end
 
-  def initialize includes_date = nil, start_day = nil
-    @start_day = default_start_day(start_day)
-    @days = build_days(default_date(includes_date))
+  def initialize(includes_date = Date.today, start_day = self.class.start_day)
+    @start_day = WeekDay.validate(start_day)
+    @days = build_days(validate_includes_date(includes_date))
   end
 
   def inspect
@@ -48,10 +48,8 @@ class OrderedWeek
     @days.last
   end
 
-  WEEK_DAYS.each_with_index do |day, day_index|
-    define_method day do
-      @days[ day_index - start_day_index ]
-    end
+  WeekDay::VALID_DAYS.each_with_index do |day, day_index|
+    define_method(day) { @days[day_index - start_day_index] }
   end
 
   private
@@ -60,12 +58,13 @@ class OrderedWeek
       base.start_day = DEFAULT_START_DAY
     end
 
-    def default_start_day(day)
-      WEEK_DAYS.include?(day) ? day : self.class.start_day
-    end
-
-    def default_date(date)
-      date.respond_to?(:to_date) ? date.to_date : Date.today
+    def validate_includes_date(date)
+      if date.respond_to?(:to_date)
+        date.to_date
+      else
+        fail ArgumentError, "#{date.inspect} is not a valid date. " \
+          'Please pass an object which responds to #to_date.'
+      end
     end
 
     def build_days(date)
@@ -80,6 +79,6 @@ class OrderedWeek
     end
 
     def start_day_index
-      WEEK_DAYS.index(start_day)
+      WeekDay::VALID_DAYS.index(start_day)
     end
 end

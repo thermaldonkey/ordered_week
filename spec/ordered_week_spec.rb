@@ -41,22 +41,21 @@ RSpec.describe OrderedWeek do
       it 'should not pollute sub-classes' do
         expect { subject }.not_to change { fancy_week.start_day }
       end
+
+      it 'should be case-insensitive' do
+        expect { OrderedWeek.start_day = 'ThursDay' }
+          .to change { OrderedWeek.start_day }
+          .from(default_start_day).to(:thursday)
+      end
     end
 
     context 'given an invalid day of week' do
       let(:day) { :bad }
 
-      it 'should not update the established start of week' do
-        expect { subject }.not_to change { OrderedWeek.start_day }
-      end
-
-      it 'should not pollute super-classes' do
-        expect { fancy_week.start_day = day }
-          .not_to change { OrderedWeek.start_day }
-      end
-
-      it 'should not pollute sub-classes' do
-        expect { subject }.not_to change { fancy_week.start_day }
+      it 'should raise a helpful error' do
+        expect { subject }.to raise_exception(ArgumentError)
+        .with_message(':bad is not a valid day name. Start day should be one of ' \
+          '[:sunday, :monday, :tuesday, :wednesday, :thursday, :friday, :saturday].')
       end
     end
   end
@@ -75,6 +74,12 @@ RSpec.describe OrderedWeek do
         .to eq(OrderedWeek.new(Date.today - 7).to_a)
     end
 
+    it 'should raise an exception if not given a date-like object' do
+      expect { OrderedWeek.new(:bad) }.to raise_exception(ArgumentError)
+        .with_message(':bad is not a valid date. ' \
+          'Please pass an object which responds to #to_date.')
+    end
+
     it 'should default to the current week, if not given an arg' do
       week_start = (Date.today - 6..Date.today).find(&:monday?)
       expect(OrderedWeek.new.to_a).to eq((week_start...week_start + 7).to_a)
@@ -85,9 +90,16 @@ RSpec.describe OrderedWeek do
         .to be_thursday
     end
 
-    it 'should use the default start day if the given day is invalid' do
-      expect(OrderedWeek.new(Date.today, :bad).start_date)
-        .to eq(OrderedWeek.new.start_date)
+    it 'should not be case-sensitive in accepting the start day' do
+      expect(OrderedWeek.new(Date.today, 'ThursDay').start_date)
+        .to be_thursday
+    end
+
+    it 'should raise an exception if the given start day is invalid' do
+      expect { OrderedWeek.new(Date.today, :bad) }
+        .to raise_exception(ArgumentError)
+        .with_message(':bad is not a valid day name. Start day should be one of ' \
+          '[:sunday, :monday, :tuesday, :wednesday, :thursday, :friday, :saturday].')
     end
   end
 
