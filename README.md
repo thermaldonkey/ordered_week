@@ -50,14 +50,19 @@ Note: The following example shows that by resetting the start date for the week,
     OrderedWeek.new.start_date
     #=> #<Date: 2014-02-16 ((2456705j,0s,0n),+0s,2299161j)>
 
-Don't worry though! If you accidentally pass an argument that isn't the symbol of a valid day of the week, nothing changes
+Don't worry though! If you accidentally pass an invalid day, an exception will be raised to let you know what went wrong.
 
     OrderedWeek.start_day
     #=> :monday
     OrderedWeek.start_day = :bad
-    #=> :bad
+    #=> ArgumentError ":bad is not a valid day name. Start day should be one of [:sunday, :monday, :tuesday, :wednesday, :thursday, :friday, :saturday]"
     OrderedWeek.start_day
     #=> :monday
+
+Valid days include day names which can be converted to a symbol and downcased to match a member of the above list.
+
+    OrderedWeek.start_day = 'Sunday'
+    OrderedWeek.start_day #=> :sunday
 
 In addition to the class-level configuration, `OrderedWeek.new` accepts an optional argument for the start day.
 
@@ -67,6 +72,8 @@ In addition to the class-level configuration, `OrderedWeek.new` accepts an optio
     #=> [2014-02-10, 2014-02-11, ... ]
     OrderedWeek.new(Date.today, :sunday)
     #=> [2014-02-16, 2014-02-17, ... ]
+    OrderedWeek.new(Date.today, :bad)
+    #=> ArgumentError ...
 
 These objects respond to the following methods
 
