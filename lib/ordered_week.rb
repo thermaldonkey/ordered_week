@@ -11,6 +11,7 @@ class OrderedWeek
   @start_day = DEFAULT_START_DAY
 
   attr_reader :start_day
+  alias to_ary to_a
 
   private_constant :WeekDay
   private_constant :DEFAULT_START_DAY
@@ -30,10 +31,6 @@ class OrderedWeek
 
   def inspect
     @days.map {|d| d.strftime("%F")}.inspect.gsub('"','')
-  end
-
-  def to_a
-    @days
   end
 
   def to_range

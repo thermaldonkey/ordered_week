@@ -159,6 +159,14 @@ RSpec.describe OrderedWeek do
       end
     end
 
+    describe '#to_ary' do
+      subject { week.to_ary }
+
+      it 'should return the array of dates in the week' do
+        is_expected.to eq((week.start_date..week.end_date).to_a)
+      end
+    end
+
     describe '#to_range' do
       subject { week.to_range }
 
