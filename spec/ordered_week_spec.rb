@@ -159,6 +159,14 @@ RSpec.describe OrderedWeek do
       end
     end
 
+    describe '#to_range' do
+      subject { week.to_range }
+
+      it 'should return a range from start_date to end_date' do
+        is_expected.to eq(week.start_date..week.end_date)
+      end
+    end
+
     describe '#each' do
       it 'should delegate to @days' do
         expect(week.each).to be_an(Enumerator)

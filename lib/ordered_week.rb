@@ -36,6 +36,10 @@ class OrderedWeek
     @days
   end
 
+  def to_range
+    start_date..end_date
+  end
+
   def each(&block)
     @days.each(&block)
   end
