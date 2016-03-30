@@ -37,6 +37,10 @@ class OrderedWeek
     start_date..end_date
   end
 
+  def to_h
+    Hash[WeekDay::VALID_DAYS.zip(@days.rotate(-start_day_index))]
+  end
+
   def each(&block)
     @days.each(&block)
   end

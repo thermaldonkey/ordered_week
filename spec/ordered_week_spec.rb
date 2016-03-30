@@ -1,6 +1,7 @@
 require 'spec_helper'
 
 RSpec.describe OrderedWeek do
+  let(:day_names) { %i(sunday monday tuesday wednesday thursday friday saturday) }
   let(:default_start_day) { :monday }
   let(:fancy_week) { Class.new(OrderedWeek) }
 
@@ -172,6 +173,15 @@ RSpec.describe OrderedWeek do
 
       it 'should return a range from start_date to end_date' do
         is_expected.to eq(week.start_date..week.end_date)
+      end
+    end
+
+    describe '#to_h' do
+      subject { week.to_h }
+
+      it 'should return a hash of day names to dates' do
+        result = Hash[day_names.map { |d| [d, week.public_send(d)] }]
+        is_expected.to eq(result)
       end
     end
 
