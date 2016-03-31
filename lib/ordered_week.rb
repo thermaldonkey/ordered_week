@@ -5,7 +5,7 @@ require 'ordered_week/week_day'
 class OrderedWeek
   include Enumerable
 
-  VERSION = '0.0.1'
+  VERSION = '0.1.0'
   DEFAULT_START_DAY = :monday
 
   @start_day = DEFAULT_START_DAY
